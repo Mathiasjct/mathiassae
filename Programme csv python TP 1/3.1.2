@@ -1,0 +1,38 @@
+
+## Diagramme circulaire
+Le diagramme ci-dessous montre la répartition des séances par mois :
+
+![Diagramme circulaire]({fichier_image})
+"""
+
+    # Convertir le contenu Markdown en HTML
+    contenu_html = markdown.markdown(contenu_markdown, extensions=['tables'])
+
+    # Ajouter une structure HTML de base
+    html_complet = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport des séances</title>
+</head>
+<body>
+    {contenu_html}
+</body>
+</html>
+"""
+
+    # Écrire le contenu HTML dans un fichier
+    with open(fichier_html, 'w', encoding='utf-8') as fichier:
+        fichier.write(html_complet)
+
+    print(f"Fichier HTML généré : {fichier_html}")
+
+
+# Exemple d'utilisation
+fichier_csv = "R107_TP_seances.csv"  # Fichier CSV généré précédemment
+fichier_image = "graphe_seances_TP_A1.png"  # Fichier image du graphe
+fichier_html = "rapport_seances.html"  # Fichier HTML de sortie
+
+generer_html(fichier_csv, fichier_image, fichier_html)
