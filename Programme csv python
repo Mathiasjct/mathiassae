@@ -1,0 +1,48 @@
+def convertir_ics_en_pseudo_csv(chemin_fichier_ics, chemin_fichier_pseudo_csv):
+    # Lire le fichier ICS
+    with open(chemin_fichier_ics, 'r', encoding='utf-8') as fichier_ics:
+        lignes = fichier_ics.readlines()
+
+    # Initialisation des variables
+    pseudo_code_csv = []
+    evenement = {}
+
+    # Parcourir les lignes du fichier ICS
+    for ligne in lignes:
+        ligne = ligne.strip()  # Supprimer les espaces inutiles
+
+        if ligne.startswith("DTSTART:"):
+            evenement["DTSTART"] = ligne.replace("DTSTART:", "")
+        elif ligne.startswith("DTEND:"):
+            evenement["DTEND"] = ligne.replace("DTEND:", "")
+        elif ligne.startswith("SUMMARY:"):
+            evenement["SUMMARY"] = ligne.replace("SUMMARY:", "")
+        elif ligne.startswith("LOCATION:"):
+            evenement["LOCATION"] = ligne.replace("LOCATION:", "")
+        elif ligne.startswith("DESCRIPTION:"):
+            # Nettoyage de la description
+            evenement["DESCRIPTION"] = ligne.replace("DESCRIPTION:", "").replace("\\n", " ").strip()
+        elif ligne.startswith("END:VEVENT"):
+            # Construire une ligne de pseudo-code CSV
+            ligne_pseudo_csv = (
+                f"DTSTART = {evenement.get('DTSTART', '')}; "
+                f"DTEND = {evenement.get('DTEND', '')}; "
+                f"SUMMARY = {evenement.get('SUMMARY', '')}; "
+                f"LOCATION = {evenement.get('LOCATION', '')}; "
+                f"DESCRIPTION = {evenement.get('DESCRIPTION', '')}"
+            )
+            pseudo_code_csv.append(ligne_pseudo_csv)
+            evenement = {}  # Réinitialiser l'événement pour le suivant
+
+    # Écrire le résultat dans le fichier pseudo-code CSV
+    with open(chemin_fichier_pseudo_csv, 'w', encoding='utf-8') as fichier_pseudo_csv:
+        for ligne in pseudo_code_csv:
+            fichier_pseudo_csv.write(ligne + "\n")
+
+    print(f"Fichier pseudo-code CSV généré : {chemin_fichier_pseudo_csv}")
+
+
+# Exemple d'utilisation
+chemin_fichier_ics = "evenementSAE_15.ics"
+chemin_fichier_pseudo_csv = "evenementSAE_15_pseudo.csv"
+convertir_ics_en_pseudo_csv(chemin_fichier_ics, chemin_fichier_pseudo_csv)
