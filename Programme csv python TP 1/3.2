@@ -1,0 +1,46 @@
+import matplotlib.pyplot as plt
+from datetime import datetime
+import csv
+from collections import Counter
+
+def compter_seances_tp(fichier_csv, groupe):
+    # Lecture du fichier CSV pour extraire les données du groupe spécifié
+    mois_seances = []
+    with open(fichier_csv, 'r', encoding='utf-8') as fichier:
+        lecteur_csv = csv.DictReader(fichier)
+        for ligne in lecteur_csv:
+            if groupe in ligne["Type"]:  # Vérifie si la ligne correspond à un TP
+                # Extraire le mois de la date
+                mois = datetime.strptime(ligne["Date"], "%Y-%m-%d").strftime("%B")
+                mois_seances.append(mois)
+
+    # Compter les occurrences des mois
+    compteur_mois = Counter(mois_seances)
+    return compteur_mois
+
+def generer_graphe_seances(compteur_mois, fichier_sortie):
+    # Mois ordonnés
+    mois_ordres = ["September", "October", "November", "December"]
+    valeurs = [compteur_mois.get(mois, 0) for mois in mois_ordres]
+
+    # Création du graphe
+    plt.figure(figsize=(8, 5))
+    plt.bar(mois_ordres, valeurs, width=0.6)
+    plt.title("Nombre de séances de TP du groupe A1 (2023)", fontsize=14)
+    plt.xlabel("Mois", fontsize=12)
+    plt.ylabel("Nombre de séances", fontsize=12)
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+
+    # Exportation du graphe en PNG
+    plt.savefig(fichier_sortie)
+    plt.close()
+    print(f"Graphe exporté dans le fichier : {fichier_sortie}")
+
+# Exemple d'utilisation
+fichier_csv = "R107_TP_seances.csv"  # Fichier généré précédemment
+fichier_graphe = "graphe_seances_TP_A1.png"  # Fichier de sortie
+groupe = "TP"  # Groupe à filtrer
+
+# Compter les séances et générer le graphe
+compteur_mois = compter_seances_tp(fichier_csv, groupe)
+generer_graphe_seances(compteur_mois, fichier_graphe)
