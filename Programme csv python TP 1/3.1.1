@@ -1,0 +1,16 @@
+import markdown
+import pandas as pd
+
+def generer_html(fichier_csv, fichier_image, fichier_html):
+    # Charger les données du tableau des séances depuis le CSV
+    tableau = pd.read_csv(fichier_csv)
+
+    # Convertir le tableau en Markdown
+    tableau_markdown = tableau.to_markdown(index=False)
+
+    # Créer le contenu Markdown
+    contenu_markdown = f"""
+# Rapport des séances de TP R1.07
+
+## Tableau des séances de TP
+Voici le tableau des séances extraites :
