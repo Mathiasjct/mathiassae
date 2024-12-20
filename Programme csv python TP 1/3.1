@@ -1,0 +1,60 @@
+from datetime import datetime
+
+def extraire_r107_tp_auto(chemin_fichier_ics, fichier_sortie):
+    # Lire le fichier ICS
+    with open(chemin_fichier_ics, 'r', encoding='utf-8') as fichier_ics:
+        lignes = fichier_ics.readlines()
+
+    # Initialisation
+    r107_tp_seances = []
+
+    evenement = {}
+    for ligne in lignes:
+        ligne = ligne.strip()  # Supprimer les espaces inutiles
+
+        if ligne.startswith("DTSTART:"):
+            evenement["DTSTART"] = ligne.replace("DTSTART:", "")
+        elif ligne.startswith("DTEND:"):
+            evenement["DTEND"] = ligne.replace("DTEND:", "")
+        elif ligne.startswith("SUMMARY:"):
+            evenement["SUMMARY"] = ligne.replace("SUMMARY:", "")
+        elif ligne.startswith("DESCRIPTION:"):
+            evenement["DESCRIPTION"] = ligne.replace("DESCRIPTION:", "")
+        elif ligne.startswith("END:VEVENT"):
+            # Vérifier si c'est une séance R1.07 TP
+            if "R1.07" in evenement.get("SUMMARY", "") and "TP" in evenement.get("SUMMARY", ""):
+                # Extraire les données nécessaires
+                date_debut = datetime.strptime(evenement["DTSTART"], "%Y%m%dT%H%M%SZ")
+                date_seance = date_debut.strftime("%Y-%m-%d")
+                heure_debut = date_debut.strftime("%H:%M")
+
+                date_fin = datetime.strptime(evenement["DTEND"], "%Y%m%dT%H%M%SZ")
+                heure_fin = date_fin.strftime("%H:%M")
+
+                duree = (date_fin - date_debut).seconds // 3600  # Durée en heures
+
+                # Ajouter les données à la liste
+                r107_tp_seances.append([
+                    date_seance,
+                    heure_debut,
+                    heure_fin,
+                    duree,
+                    "TP"
+                ])
+
+            # Réinitialiser l'événement
+            evenement = {}
+
+    # Écrire les résultats dans un fichier CSV
+    with open(fichier_sortie, 'w', encoding='utf-8') as fichier_csv:
+        fichier_csv.write("Date,Début,Fin,Durée (h),Type\n")  # Entête
+        for seance in r107_tp_seances:
+            fichier_csv.write(",".join(map(str, seance)) + "\n")
+
+    print(f"Extraction terminée. Les données sont sauvegardées dans le fichier : {fichier_sortie}")
+
+
+# Exemple d'utilisation
+chemin_fichier_ics = "ADE_RT1_Septembre2023_Decembre2023 (1).ics"  # Le fichier ICS fourni
+fichier_sortie = "R107_TP_seances.csv"  # Fichier de sortie CSV
+extraire_r107_tp_auto(chemin_fichier_ics, fichier_sortie)
